@@ -48,6 +48,10 @@ logs/
 .idea/
 .vscode/
 *.orig
+
+# Secrets and credentials
+**/googlesearchConsole.json
+frontend/assets/googlesearchConsole.json
 /out
 /obj
 /bin
