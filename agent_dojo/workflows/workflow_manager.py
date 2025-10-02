@@ -226,8 +226,8 @@ class WorkflowManager:
                     metadata={
                         "status": execution.status,
                         "duration": (
-                            execution.completed_at - execution.started_at
-                        ).total_seconds(),
+                            execution.completed_at execution.started_at
+                            ).total_seconds(),
                     },
                 )
 

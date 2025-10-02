@@ -1,5 +1,6 @@
 """Composio integration for app connections and authentication (SDK v3)"""
 
+import time
 from enum import Enum
 from typing import Any
 
@@ -7,6 +8,7 @@ from composio import Composio
 
 from agent_dojo.core.config import settings
 from agent_dojo.core.exceptions import AgentDojoException
+from agent_dojo.observability.langfuse_client import trace_tool_execution
 
 
 class AppType(str, Enum):
@@ -229,29 +231,74 @@ class ComposioManager:
     def execute_tool(
         self, tool_slug: str, user_id: str, parameters: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute a tool action (v3: uses tool_slug string and user_id)"""
+        """Execute a tool action with Langfuse tracing (v3: uses tool_slug string and user_id)"""
+        start_time = time.time()
+        success = False
+        result_data = None
+        error_message = None
+
         try:
             # V3: Execute tool by slug
             result = self.client.tools.execute(
                 slug=tool_slug, user_id=user_id, arguments=parameters
             )
 
-            return {
-                "success": result.get("successful", True),
-                "result": result.get("data", result),
-                "error": result.get("error"),
+            success = result.get("successful", True)
+            result_data = result.get("data", result)
+            error_message = result.get("error")
+
+            execution_result = {
+                "success": success,
+                "result": result_data,
+                "error": error_message,
                 "tool": tool_slug,
                 "user_id": user_id,
             }
 
+            return execution_result
+
         except Exception as e:
+            success = False
+            error_message = str(e)
             return {
                 "success": False,
-                "error": str(e),
+                "error": error_message,
                 "result": None,
                 "tool": tool_slug,
                 "user_id": user_id,
             }
+
+        finally:
+            # Calculate execution time
+            execution_time_ms = (time.time() - start_time) * 1000
+
+            # Trace tool execution with Langfuse
+            try:
+                trace_tool_execution(
+                    tool_name=tool_slug,
+                    parameters={
+                        "user_id": user_id,
+                        "arguments": parameters,
+                        "toolkit": (
+                            tool_slug.split("_")[0] if "_" in tool_slug else tool_slug
+                        ),
+                    },
+                    result={
+                        "success": success,
+                        "data": result_data if success else None,
+                        "error": error_message,
+                        "execution_time_ms": execution_time_ms,
+                    },
+                    metadata={
+                        "composio_tool": True,
+                        "user_id": user_id,
+                        "execution_time_ms": execution_time_ms,
+                        "timestamp": time.time(),
+                    },
+                )
+            except Exception as trace_error:
+                # Don't fail the tool execution if tracing fails
+                print(f"Langfuse tracing failed for tool {tool_slug}: {trace_error}")
 
     def get_toolkit_tools(
         self, app_type: AppType, user_id: str

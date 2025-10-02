@@ -1,48 +1,105 @@
 import { Link, useLocation } from 'react-router-dom'
-import { 
-  LayoutDashboard, 
-  GitBranch, 
-  Bot, 
-  Wrench, 
-  Plug,
-  Settings
-} from 'lucide-react'
+import { Menu } from 'antd'
+import {
+  DashboardOutlined,
+  BranchesOutlined,
+  RobotOutlined,
+  ToolOutlined,
+  ApiOutlined,
+  SettingOutlined,
+} from '@ant-design/icons'
+
+interface NavigationProps {
+  collapsed?: boolean
+}
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Canvas', href: '/canvas', icon: GitBranch },
-  { name: 'Agents', href: '/agents', icon: Bot },
-  { name: 'Tools', href: '/tools', icon: Wrench },
-  { name: 'Integrations', href: '/integrations', icon: Plug },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  {
+    key: '/',
+    label: 'Dashboard',
+    icon: <DashboardOutlined />,
+    href: '/'
+  },
+  {
+    key: '/canvas',
+    label: 'Canvas',
+    icon: <BranchesOutlined />,
+    href: '/canvas'
+  },
+  {
+    key: '/agents',
+    label: 'Agents',
+    icon: <RobotOutlined />,
+    href: '/agents'
+  },
+  {
+    key: '/tools',
+    label: 'Tools',
+    icon: <ToolOutlined />,
+    href: '/tools'
+  },
+  {
+    key: '/integrations',
+    label: 'Integrations',
+    icon: <ApiOutlined />,
+    href: '/integrations'
+  },
+  {
+    key: '/settings',
+    label: 'Settings',
+    icon: <SettingOutlined />,
+    href: '/settings'
+  },
 ]
 
-export function Navigation() {
+export function Navigation({ collapsed = false }: NavigationProps) {
   const location = useLocation()
-  
+
+  // Find the currently active key
+  const activeKey = navigation.find(item =>
+    location.pathname === item.href ||
+    (item.href !== '/' && location.pathname.startsWith(item.href))
+  )?.key || '/'
+
+  const handleMenuClick = ({ key }: { key: string }) => {
+    const item = navigation.find(nav => nav.key === key)
+    if (item) {
+      // Use Link navigation instead of direct window.location
+      window.location.href = item.href
+    }
+  }
+
   return (
-    <nav className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 border-r bg-card p-4 overflow-y-auto">
-      <div className="space-y-2">
-        {navigation.map((item) => {
-          const isActive = location.pathname === item.href || 
-            (item.href !== '/' && location.pathname.startsWith(item.href))
-          
-          return (
+    <div className="p-4">
+      <Menu
+        mode="inline"
+        selectedKeys={[activeKey]}
+        onClick={handleMenuClick}
+        style={{
+          background: 'transparent',
+          border: 'none',
+          fontSize: '14px',
+          fontWeight: 500,
+        }}
+        items={navigation.map(item => ({
+          key: item.key,
+          icon: item.icon,
+          label: (
             <Link
-              key={item.name}
               to={item.href}
-              className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-              }`}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'block',
+                width: '100%'
+              }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <item.icon className="w-5 h-5" />
-              <span>{item.name}</span>
+              {item.label}
             </Link>
-          )
-        })}
-      </div>
-    </nav>
+          ),
+        }))}
+      />
+    </div>
   )
 }

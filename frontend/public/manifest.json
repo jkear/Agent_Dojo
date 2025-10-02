@@ -1,0 +1,94 @@
+{
+    "name": "Agent Dojo",
+    "short_name": "Agent Dojo",
+    "description": "AI Agent Development and Orchestration Platform",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#1e293b",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/icons/main_frontview_16x16.png",
+            "sizes": "16x16",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/main_frontview_32x32.png",
+            "sizes": "32x32",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/main_frontview_64x64.png",
+            "sizes": "64x64",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/main_frontview_128x128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/main_frontview_256x256.png",
+            "sizes": "256x256",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/main_frontview_512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [],
+    "categories": [
+        "productivity",
+        "developer-tools"
+    ],
+    "shortcuts": [
+        {
+            "name": "Dashboard",
+            "short_name": "Dashboard",
+            "description": "View the main dashboard",
+            "url": "/",
+            "icons": [
+                {
+                    "src": "/icons/main_frontview_128x128.png",
+                    "sizes": "128x128",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "Agents",
+            "short_name": "Agents",
+            "description": "Manage AI agents",
+            "url": "/agents",
+            "icons": [
+                {
+                    "src": "/icons/gi_128x128.png",
+                    "sizes": "128x128",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "Workflows",
+            "short_name": "Workflows",
+            "description": "Build agent workflows",
+            "url": "/workflows",
+            "icons": [
+                {
+                    "src": "/icons/katana_128x128.png",
+                    "sizes": "128x128",
+                    "type": "image/png"
+                }
+            ]
+        }
+    ]
+}

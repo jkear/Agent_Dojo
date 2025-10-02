@@ -8,6 +8,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.graph import END, StateGraph
 
 from agent_dojo.agents.base_agent import AgentStatus, BaseAgent, TaskResult
+from agent_dojo.integrations.composio_client import get_composio_manager
 from agent_dojo.observability.langfuse_client import langfuse_handler
 from agent_dojo.observability.telemetry import get_tracer
 
@@ -301,3 +302,38 @@ class LangGraphAgent(BaseAgent):
             return "finish"
 
         return "continue"
+
+    def load_composio_tools(self, toolkits: list[str], user_id: str) -> None:
+        """
+        Load Composio tools using LangchainProvider (REQUIRED by standards).
+        
+        This method retrieves tools for specified toolkits and makes them available
+        to the agent for LangChain execution.
+        
+        Args:
+            toolkits: List of toolkit slugs (e.g., ['gmail', 'slack'])
+            user_id: User ID for multi-tenant tool access
+        """
+        composio = get_composio_manager()
+        if not composio:
+            raise ValueError("Composio integration is not configured")
+        
+        try:
+            # Get LangChain-compatible tools using LangchainProvider
+            langchain_tools = composio.get_langchain_tools(toolkits, user_id)
+            
+            # Add to agent's existing tools
+            if self.tools is None:
+                self.tools = []
+            
+            self.tools.extend(langchain_tools)
+            
+            # Update memory context with available tools
+            self.memory.context["composio_tools"] = [
+                {"name": tool.name, "description": tool.description}
+                for tool in langchain_tools
+                if hasattr(tool, "name") and hasattr(tool, "description")
+            ]
+            
+        except Exception as e:
+            raise ValueError(f"Failed to load Composio tools: {str(e)}")

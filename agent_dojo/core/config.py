@@ -1,8 +1,10 @@
 """Application configuration"""
 
+import os
 from functools import lru_cache
+from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,11 +19,39 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = Field(default="development")
     SECRET_KEY: str = Field(default="dev-secret-key-change-in-production")
     DEBUG: bool = Field(default=False)
+    
+    # Deployment Mode
+    DEPLOYMENT_MODE: str = Field(
+        default="desktop",  # Options: "desktop", "server"
+        description="Deployment mode: desktop (SQLite) or server (PostgreSQL)"
+    )
 
     # Database
     DATABASE_URL: str = Field(
-        default="postgresql+asyncpg://postgres:postgres@localhost:5432/agent_dojo"
+        default="sqlite+aiosqlite:///./agent_dojo.db",
+        description="Database URL - will be auto-configured based on DEPLOYMENT_MODE"
     )
+    
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def configure_database_url(cls, v: str | None, info) -> str:
+        """Auto-configure database URL based on deployment mode"""
+        deployment_mode = info.data.get("DEPLOYMENT_MODE", "desktop")
+        
+        # If explicitly set, use the provided value
+        if v and v != "sqlite+aiosqlite:///./agent_dojo.db":
+            return v
+        
+        # Auto-configure based on deployment mode
+        if deployment_mode == "desktop":
+            # Use SQLite in user's data directory
+            data_dir = Path.home() / ".agent_dojo" / "data"
+            data_dir.mkdir(parents=True, exist_ok=True)
+            db_path = data_dir / "agent_dojo.db"
+            return f"sqlite+aiosqlite:///{db_path}"
+        else:
+            # Server mode - use PostgreSQL
+            return "postgresql+asyncpg://postgres:postgres@localhost:5432/agent_dojo"
 
     # Redis
     REDIS_URL: str = Field(default="redis://localhost:6379/0")
