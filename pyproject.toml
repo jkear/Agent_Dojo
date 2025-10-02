@@ -1,0 +1,176 @@
+[project]
+name = "agent-dojo"
+dynamic = ["version"]
+description = "Modern AI agent orchestration framework with visual workflow builder, combining CrewAI concepts with LangGraph workflows."
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+authors = [
+    { name = "Agent Dojo Contributors" }
+]
+dependencies = [
+    # Core Framework
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.11.9",
+    "pydantic-settings>=2.10.1",
+    
+    # LangChain & LangGraph
+    "langchain>=0.2.0",
+    "langgraph>=0.2.0",
+    "langchain-openai>=0.1.0",
+    "langchain-anthropic>=0.1.0",
+    "langchain-community>=0.2.0",
+    
+    # Observability
+    "langfuse>=2.0.0,<3.0.0",
+    "opentelemetry-api>=1.30.0",
+    "opentelemetry-sdk>=1.30.0",
+    "opentelemetry-exporter-otlp-proto-http>=1.30.0",
+    "opentelemetry-instrumentation-fastapi>=0.41.0",
+    
+    # Database & Storage
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.13.0",
+    "asyncpg>=0.29.0",
+    "greenlet>=3.0.0",
+    "redis[hiredis]>=5.0.0",
+    
+    # Authentication & Security
+    "python-jose[cryptography]>=3.3.0",
+    "python-multipart>=0.0.6",
+    "bcrypt>=4.1.0",
+    
+    # App Integrations
+    "composio-core>=0.3.0",
+    "composio-langchain>=0.3.0",
+    
+    # MCP Tools
+    "mcp>=1.0.0",
+    
+    # Utilities
+    "python-dotenv>=1.1.1",
+    "click>=8.1.7",
+    "httpx>=0.25.0",
+    "websockets>=12.0",
+    "celery[redis]>=5.3.0",
+    "croniter>=2.0.0",
+    
+    # Data Processing
+    "pandas>=2.1.0",
+    "numpy>=1.24.0",
+    "tiktoken>=0.5.0",
+    
+    # File Processing
+    "python-magic>=0.4.27",
+    "pypdf>=3.17.0",
+    "python-docx>=1.1.0",
+    "openpyxl>=3.1.5",
+]
+
+[project.urls]
+Homepage = "https://github.com/agent-dojo/agent-dojo"
+Documentation = "https://agent-dojo.readthedocs.io"
+Repository = "https://github.com/agent-dojo/agent-dojo"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.6.0",
+    "pre-commit>=3.5.0",
+    "httpx>=0.25.0",
+]
+
+anthropic = [
+    "anthropic>=0.25.0",
+]
+
+openai = [
+    "openai>=1.30.0",
+]
+
+google = [
+    "google-generativeai>=0.5.0",
+]
+
+[project.scripts]
+agent-dojo = "agent_dojo.cli:main"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG001", # unused-function-args
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "TID",    # flake8-tidy-imports
+]
+ignore = [
+    "E501",   # line too long
+    "B008",   # do not perform function calls in argument defaults
+    "B904",   # Allow raising exceptions without from e, for HTTPException
+]
+per-file-ignores = { "__init__.py" = ["F401"], "tests/**/*.py" = ["ARG001", "ARG002"] }
+
+[tool.black]
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.mypy]
+python_version = "3.10"
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=agent_dojo --cov-report=term-missing --cov-report=xml"
+asyncio_mode = "auto"
+
+[tool.hatch.version]
+path = "agent_dojo/__init__.py"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.6.0",
+    "pre-commit>=3.5.0",
+    "httpx>=0.25.0",
+]

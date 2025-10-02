@@ -1,0 +1,5 @@
+# uv.lock should be committed to version control
+# This ensures reproducible builds across environments
+
+# If you need to recreate the lock file:
+# uv lock --upgrade
